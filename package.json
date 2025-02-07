@@ -29,6 +29,7 @@
     "request": "^2.88.2",
     "sass": "^1.84.0",
     "sass-loader": "^16.0.4",
+    "systeminformation": "^5.25.11",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {

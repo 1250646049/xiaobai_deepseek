@@ -55,21 +55,22 @@
     
             <!-- CPU信息 -->
             <div class="info-card">
+    
                 <h2><i class="fas fa-microchip"></i> CPU 信息</h2>
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-cog"></i> 处理器型号</span>
-                    <span class="info-value" id="cpu-model">加载中...</span>
+                    <span class="info-value" id="cpu-model">{{systemInfo.cpu["brand"]?systemInfo.cpu["brand"]:'加载中'}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-layer-group"></i> 核心数</span>
-                    <span class="info-value" id="cpu-cores">加载中...</span>
+                    <span class="info-value" id="cpu-cores">{{systemInfo.cpu["cores"]?systemInfo.cpu["cores"]:'加载中'}}</span>
                 </div>
                 <div class="info-item">
                     <span class="info-label"><i class="fas fa-tachometer-alt"></i> 使用率</span>
-                    <span class="info-value" id="cpu-usage">0%</span>
+                    <span class="info-value" id="cpu-usage">{{cpuUsedRatio}}</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill" id="cpu-progress" style="width: 0%"></div>
+                    <div class="progress-fill" id="cpu-progress" :style="{width:cpuUsedRatio}"></div>
                 </div>
             </div>
     
@@ -139,6 +140,48 @@
 </template>
 
 <script setup>
+import { computed, onMounted, reactive } from "vue";
+import systemInfoUtil from "@renderer/utils/systemInfoUtils"
+const systemInfo = reactive({
+  cpu: {
+
+  },
+  disks: [],
+  gpu: [],
+  memory: {},
+  os: {}
+})
+
+
+const cpuUsedRatio = computed(() => {
+  if (!systemInfo.cpu["speed"] || !systemInfo.cpu["cores"]) {
+    return "加载中"
+  }
+  const {speed,cores}=systemInfo.cpu
+  return Math.floor(((Number(speed)/Number(cores))*100).toFixed(4))+"%"
+})
+
+function initSystemInfo() {
+  systemInfoUtil.getHardwareInfo()
+    .then(r => {
+      console.log(r)
+      for (const item in r) {
+        const result = r[item]
+        if (item in systemInfo) {
+          systemInfo[item] = result
+        }
+      }
+    }).catch(e => {
+      console.log(e)
+    })
+}
+
+
+onMounted(() => {
+  initSystemInfo()
+})
+
+
 
 </script>
 
